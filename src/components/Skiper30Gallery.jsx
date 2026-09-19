@@ -29,6 +29,7 @@ function GithubIcon({ size = 16, className = "" }) {
 // Skiper30 Multi-Column Parallax Scroll Component
 // =========================================================
 function ParallaxColumn({ images, y, onImageClick }) {
+  if (!images || images.length === 0) return null;
   return (
     <motion.div
       className="skiper30-column"
@@ -107,18 +108,35 @@ export function Skiper30Gallery({ project, onBack, userEmail }) {
     };
   }, [project]);
 
-  // Build full robust 4-column gallery list from project's gallery
+  // Build full robust gallery list from project's gallery
   const rawList = Array.isArray(project.gallery) && project.gallery.length > 0
     ? project.gallery
     : [project.image || "/projects/project-1/img1.jpg"];
 
   const galleryImages = rawList.map((item) => formatImageUrl(item));
 
-  // Keep every uploaded image in the gallery exactly once.
-  const col1 = galleryImages.filter((_, index) => index % 4 === 0);
-  const col2 = galleryImages.filter((_, index) => index % 4 === 1);
-  const col3 = galleryImages.filter((_, index) => index % 4 === 2);
-  const col4 = galleryImages.filter((_, index) => index % 4 === 3);
+  // Dynamically distribute all images evenly across visible columns
+  const isMobile = dimension.width <= 768 && dimension.width > 0;
+  const isSmallPhone = dimension.width <= 480 && dimension.width > 0;
+
+  let col1, col2, col3, col4;
+  if (isSmallPhone) {
+    col1 = galleryImages;
+    col2 = [];
+    col3 = [];
+    col4 = [];
+  } else if (isMobile) {
+    col1 = galleryImages.filter((_, idx) => idx % 2 === 0);
+    col2 = galleryImages.filter((_, idx) => idx % 2 === 1);
+    col3 = [];
+    col4 = [];
+  } else {
+    col1 = galleryImages.filter((_, idx) => idx % 4 === 0);
+    col2 = galleryImages.filter((_, idx) => idx % 4 === 1);
+    col3 = galleryImages.filter((_, idx) => idx % 4 === 2);
+    col4 = galleryImages.filter((_, idx) => idx % 4 === 3);
+  }
+
 
   return (
     <div className="skiper30-page-wrapper">

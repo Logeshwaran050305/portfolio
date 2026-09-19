@@ -34,7 +34,7 @@ export function Certificate3DCard({ cert, onClick }) {
   const cardRef = useRef(null);
 
   const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
+    if (window.innerWidth <= 768 || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -148,12 +148,20 @@ export function CertificateModal({ cert, onClose }) {
   if (!cert) return null;
 
   const handlePrint = () => {
-    confetti({
-      particleCount: 100,
-      spread: 80,
-      origin: { y: 0.6 }
-    });
-    window.print();
+    try {
+      confetti({
+        particleCount: 60,
+        spread: 60,
+        origin: { y: 0.6 }
+      });
+    } catch {
+      // Gracefully ignore if canvas is restricted
+    }
+    try {
+      window.print();
+    } catch (e) {
+      console.warn("Print error:", e);
+    }
   };
 
   return (

@@ -176,11 +176,15 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
   };
 
   const handleConfetti = () => {
-    confetti({
-      particleCount: 70,
-      spread: 60,
-      origin: { y: 0.6 }
-    });
+    try {
+      confetti({
+        particleCount: 60,
+        spread: 60,
+        origin: { y: 0.6 }
+      });
+    } catch {
+      // Gracefully ignore if canvas is restricted
+    }
   };
 
   // Profile Image and Logo Upload Handler

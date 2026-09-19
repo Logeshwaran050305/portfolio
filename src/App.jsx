@@ -103,7 +103,7 @@ function Skill3DCard({ skill, onCardClick }) {
   const cardRef = useRef(null);
 
   const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
+    if (window.innerWidth <= 768 || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -303,23 +303,37 @@ export default function App() {
 
   // Reveal sections as they enter the viewport during scrolling.
   useEffect(() => {
-    const revealObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
-    );
+    // If mobile screen or IntersectionObserver is unsupported, immediately make all visible
+    if (typeof window !== 'undefined' && (window.innerWidth <= 768 || !('IntersectionObserver' in window))) {
+      document.querySelectorAll('.scroll-reveal').forEach((section) => {
+        section.classList.add('is-visible');
+      });
+      return;
+    }
 
-    document.querySelectorAll('.scroll-reveal').forEach((section) => {
-      revealObserver.observe(section);
-    });
+    try {
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.05, rootMargin: '0px 0px 50px 0px' }
+      );
 
-    return () => revealObserver.disconnect();
+      document.querySelectorAll('.scroll-reveal').forEach((section) => {
+        revealObserver.observe(section);
+      });
+
+      return () => revealObserver.disconnect();
+    } catch {
+      document.querySelectorAll('.scroll-reveal').forEach((section) => {
+        section.classList.add('is-visible');
+      });
+    }
   }, []);
 
   // Typewriter effect
@@ -352,14 +366,18 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [displayedText, isDeleting, currentRoleIndex, typingSpeed, personalInfo.typingRoles]);
 
-  // Trigger celebratory confetti
+  // Trigger celebratory confetti safely
   const launchConfetti = () => {
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#38bdf8', '#6366f1', '#a855f7', '#10b981', '#f59e0b']
-    });
+    try {
+      confetti({
+        particleCount: 60,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#38bdf8', '#6366f1', '#a855f7', '#10b981', '#f59e0b']
+      });
+    } catch {
+      // Gracefully ignore if canvas confetti is restricted on device
+    }
   };
 
   // Toast helper
@@ -370,10 +388,27 @@ export default function App() {
     }, 3500);
   };
 
-  // Copy to clipboard helper
-  const handleCopy = (text, type) => {
-    navigator.clipboard.writeText(text);
-    showToast(`✓ Copied ${type} to clipboard!`);
+  // Copy to clipboard helper with robust mobile fallback
+  const handleCopy = async (text, type) => {
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      showToast(`✓ Copied ${type} to clipboard!`);
+    } catch (err) {
+      console.warn('Clipboard copy fallback:', err);
+      showToast(`✓ ${type}: ${text}`);
+    }
   };
 
   // Handle skill card click with micro burst

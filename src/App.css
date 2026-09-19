@@ -3074,6 +3074,13 @@
 
 /* Standard Mobile & Tablet Screens (<= 768px) */
 @media (max-width: 768px) {
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    transition: none !important;
+  }
+
   .nav-links,
   .nav-action-btn {
     display: none !important;

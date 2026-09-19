@@ -138,6 +138,7 @@ export function Skiper48Projects({ projects, userEmail, onOpenProjectDetail }) {
               effect="cards"
               grabCursor={true}
               rewind={true}
+              touchStartPreventDefault={false}
               autoplay={{
                 delay: 5000,
                 disableOnInteraction: false,

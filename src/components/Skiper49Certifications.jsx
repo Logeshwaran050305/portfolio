@@ -50,6 +50,7 @@ export function Skiper49Certifications({ certifications, onSelectCert }) {
           centeredSlides={true}
           slidesPerView="auto"
           initialSlide={1}
+          touchStartPreventDefault={false}
           autoplay={{
             delay: 4500,
             disableOnInteraction: false,
