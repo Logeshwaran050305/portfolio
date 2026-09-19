@@ -88,6 +88,15 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
 
   const [activeTab, setActiveTab] = useState("dashboard");
   const [toast, setToast] = useState(null);
+  const publishChanges = async (successMessage) => {
+    try {
+      await saveAllChanges();
+      handleConfetti();
+      showToast(successMessage);
+    } catch (error) {
+      showToast(`Publish failed: ${error.message}`);
+    }
+  };
 
   // Edit/Modal States for Skills
   const [editingSkill, setEditingSkill] = useState(null);
@@ -861,11 +870,7 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
 
                 <div style={{ marginTop: "1.75rem", display: "flex", justifyContent: "flex-end" }}>
                   <button
-                    onClick={() => {
-                      saveAllChanges();
-                      handleConfetti();
-                      showToast("✓ Profile & Hero settings saved to live website!");
-                    }}
+                    onClick={() => publishChanges("✓ Profile & Hero settings saved to live website!")}
                     className="btn-glow"
                     style={{ width: "100%", maxWidth: "260px", justifyContent: "center" }}
                   >
@@ -1715,11 +1720,7 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
 
                 <div style={{ marginTop: "1rem", display: "flex", justifyContent: "flex-end" }}>
                   <button
-                    onClick={() => {
-                      saveAllChanges();
-                      handleConfetti();
-                      showToast("✓ All Section Headings saved to live website!");
-                    }}
+                    onClick={() => publishChanges("✓ All Section Headings saved to live website!")}
                     className="btn-glow"
                     style={{ width: "100%", maxWidth: "260px", justifyContent: "center" }}
                   >

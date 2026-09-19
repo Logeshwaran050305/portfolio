@@ -14,6 +14,7 @@ const PortfolioContext = createContext();
 const STORAGE_KEY = "logeshwaran_portfolio_cms_v1";
 const MESSAGES_KEY = "logeshwaran_portfolio_messages_v1";
 const DEFAULT_ADMIN_CREDENTIALS = { username: "admin", password: "admin123" };
+const CONTENT_API = "/api/content";
 
 // Safe item serializer that protects against localStorage quota exhaustion
 function safeSetItem(key, value) {
@@ -124,6 +125,45 @@ export function PortfolioProvider({ children }) {
   const [adminCredentials, setAdminCredentials] = useState(() =>
     safeGetItem(`${STORAGE_KEY}_admin_credentials`, DEFAULT_ADMIN_CREDENTIALS)
   );
+
+  const getContentSnapshot = () => ({
+    personalInfo,
+    sectionHeaders,
+    aboutHighlights,
+    skills,
+    categories,
+    projects,
+    certifications,
+    education
+  });
+
+  const applyContentSnapshot = (content) => {
+    if (!content) return;
+    if (content.personalInfo) setPersonalInfo(content.personalInfo);
+    if (content.sectionHeaders) setSectionHeaders(content.sectionHeaders);
+    if (content.aboutHighlights) setAboutHighlights(content.aboutHighlights);
+    if (content.skills) setSkills(content.skills);
+    if (content.categories) setCategories(content.categories);
+    if (content.projects) setProjects(content.projects);
+    if (content.certifications) setCertifications(content.certifications);
+    if (content.education) setEducation(content.education);
+  };
+
+  // Shared content is authoritative on deployed sites; localStorage remains a cache/fallback.
+  useEffect(() => {
+    let cancelled = false;
+    fetch(CONTENT_API)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.content) applyContentSnapshot(data.content);
+      })
+      .catch(() => {
+        // The local cache keeps the portfolio usable when shared storage is unavailable.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Cross-tab real-time sync listener
   useEffect(() => {
@@ -423,7 +463,8 @@ export function PortfolioProvider({ children }) {
   };
 
   // Explicit Save All Changes function
-  const saveAllChanges = () => {
+  const saveAllChanges = async () => {
+    const content = getContentSnapshot();
     safeSetItem(`${STORAGE_KEY}_personal`, personalInfo);
     safeSetItem(`${STORAGE_KEY}_section_headers`, sectionHeaders);
     safeSetItem(`${STORAGE_KEY}_about_highlights`, aboutHighlights);
@@ -434,6 +475,16 @@ export function PortfolioProvider({ children }) {
     safeSetItem(`${STORAGE_KEY}_education`, education);
     safeSetItem(`${STORAGE_KEY}_admin_credentials`, adminCredentials);
     safeSetItem(MESSAGES_KEY, messages);
+
+    const response = await fetch(CONTENT_API, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(content)
+    });
+
+    if (!response.ok) {
+      throw new Error("Shared content storage is unavailable. Configure Vercel KV before publishing.");
+    }
     return true;
   };
 
