@@ -41,7 +41,7 @@ export function formatImageUrl(url, fallback = '/projects/project-1/img1.jpg') {
  * Utility to compress and convert image files to optimized base64 Data URLs
  * Prevents localStorage quota overflow while maintaining crisp visuals.
  */
-export function compressImage(file, maxWidth = 1200, maxHeight = 900, quality = 0.82) {
+export function compressImage(file, maxWidth = 900, maxHeight = 700, quality = 0.78) {
   return new Promise((resolve, reject) => {
     if (!file || !file.type.startsWith('image/')) {
       reject(new Error('Invalid image file'));
@@ -77,10 +77,22 @@ export function compressImage(file, maxWidth = 1200, maxHeight = 900, quality = 
           return;
         }
 
+        // Fill background in case of transparent png converting to jpeg/webp
+        ctx.fillStyle = '#080c14';
+        ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
 
-        const mimeType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-        const compressedDataUrl = canvas.toDataURL(mimeType, quality);
+        // Always use image/webp with fallback to image/jpeg for high compression ratio
+        let compressedDataUrl = '';
+        try {
+          compressedDataUrl = canvas.toDataURL('image/webp', quality);
+          if (!compressedDataUrl.startsWith('data:image/webp')) {
+            compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+        } catch {
+          compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        }
+
         resolve(compressedDataUrl);
       };
       img.onerror = () => reject(new Error('Failed to load image for compression'));

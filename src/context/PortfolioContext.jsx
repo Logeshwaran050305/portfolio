@@ -15,250 +15,361 @@ const STORAGE_KEY = "logeshwaran_portfolio_cms_v1";
 const MESSAGES_KEY = "logeshwaran_portfolio_messages_v1";
 const DEFAULT_ADMIN_CREDENTIALS = { username: "admin", password: "admin123" };
 
+// Safe item serializer that protects against localStorage quota exhaustion
+function safeSetItem(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (err) {
+    console.warn(`[PortfolioContext] Failed to persist key "${key}" to localStorage:`, err);
+    return false;
+  }
+}
+
+function safeGetItem(key, fallback) {
+  try {
+    const saved = localStorage.getItem(key);
+    if (!saved) return fallback;
+    const parsed = JSON.parse(saved);
+    if (Array.isArray(fallback)) {
+      return Array.isArray(parsed) ? parsed : fallback;
+    }
+    if (typeof fallback === "object" && fallback !== null) {
+      return { ...fallback, ...parsed };
+    }
+    return parsed ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export function PortfolioProvider({ children }) {
   // Load initial state from localStorage or defaults
-  const [personalInfo, setPersonalInfo] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_personal`);
-      return saved ? { ...defaultPersonalInfo, ...JSON.parse(saved) } : defaultPersonalInfo;
-    } catch {
-      return defaultPersonalInfo;
-    }
-  });
+  const [personalInfo, setPersonalInfo] = useState(() =>
+    safeGetItem(`${STORAGE_KEY}_personal`, defaultPersonalInfo)
+  );
 
-  const [sectionHeaders, setSectionHeaders] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_section_headers`);
-      return saved ? { ...defaultSectionHeaders, ...JSON.parse(saved) } : defaultSectionHeaders;
-    } catch {
-      return defaultSectionHeaders;
-    }
-  });
+  const [sectionHeaders, setSectionHeaders] = useState(() =>
+    safeGetItem(`${STORAGE_KEY}_section_headers`, defaultSectionHeaders)
+  );
 
-  const [aboutHighlights, setAboutHighlights] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_about_highlights`);
-      return saved ? JSON.parse(saved) : defaultAboutHighlights;
-    } catch {
-      return defaultAboutHighlights;
-    }
-  });
+  const [aboutHighlights, setAboutHighlights] = useState(() =>
+    safeGetItem(`${STORAGE_KEY}_about_highlights`, defaultAboutHighlights)
+  );
 
-  const [skills, setSkills] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_skills`);
-      return saved ? JSON.parse(saved) : defaultSkillsData.skills;
-    } catch {
-      return defaultSkillsData.skills;
-    }
-  });
+  const [skills, setSkills] = useState(() =>
+    safeGetItem(`${STORAGE_KEY}_skills`, defaultSkillsData.skills)
+  );
 
-  const [categories, setCategories] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_categories`);
-      return saved ? JSON.parse(saved) : defaultSkillsData.categories;
-    } catch {
-      return defaultSkillsData.categories;
-    }
-  });
+  const [categories, setCategories] = useState(() =>
+    safeGetItem(`${STORAGE_KEY}_categories`, defaultSkillsData.categories)
+  );
 
-  const [projects, setProjects] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_projects`);
-      return saved ? JSON.parse(saved) : defaultProjectsData;
-    } catch {
-      return defaultProjectsData;
-    }
-  });
+  const [projects, setProjects] = useState(() =>
+    safeGetItem(`${STORAGE_KEY}_projects`, defaultProjectsData)
+  );
 
-  const [certifications, setCertifications] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_certs`);
-      return saved ? JSON.parse(saved) : defaultCertificationsData;
-    } catch {
-      return defaultCertificationsData;
-    }
-  });
+  const [certifications, setCertifications] = useState(() =>
+    safeGetItem(`${STORAGE_KEY}_certs`, defaultCertificationsData)
+  );
 
-  const [education, setEducation] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_education`);
-      return saved ? JSON.parse(saved) : defaultEducationData;
-    } catch {
-      return defaultEducationData;
-    }
-  });
+  const [education, setEducation] = useState(() =>
+    safeGetItem(`${STORAGE_KEY}_education`, defaultEducationData)
+  );
 
-  const [messages, setMessages] = useState(() => {
-    try {
-      const saved = localStorage.getItem(MESSAGES_KEY);
-      return saved
-        ? JSON.parse(saved)
-        : [
-            {
-              id: 1,
-              name: "Priya Sharma",
-              email: "priya.tech@example.com",
-              subject: "Data Analyst Role Opportunity",
-              message: "Hi Logeshwaran, we were impressed by your Power BI and Python projects and would love to schedule a preliminary conversation for our Data Analytics team.",
-              date: "2026-08-25 14:30",
-              read: false
-            },
-            {
-              id: 2,
-              name: "David Miller",
-              email: "david.m@cloudventures.io",
-              subject: "Full-Stack Project Collaboration",
-              message: "Hello Logeshwaran, we are developing an AI-powered SaaS dashboard and are looking for a skilled React/Node developer with your background.",
-              date: "2026-08-26 10:15",
-              read: true
-            }
-          ];
-    } catch {
-      return [];
-    }
-  });
+  const [messages, setMessages] = useState(() =>
+    safeGetItem(MESSAGES_KEY, [
+      {
+        id: 1,
+        name: "Priya Sharma",
+        email: "priya.tech@example.com",
+        subject: "Data Analyst Role Opportunity",
+        message:
+          "Hi Logeshwaran, we were impressed by your Power BI and Python projects and would love to schedule a preliminary conversation for our Data Analytics team.",
+        date: "2026-08-25 14:30",
+        read: false
+      },
+      {
+        id: 2,
+        name: "David Miller",
+        email: "david.m@cloudventures.io",
+        subject: "Full-Stack Project Collaboration",
+        message:
+          "Hello Logeshwaran, we are developing an AI-powered SaaS dashboard and are looking for a skilled React/Node developer with your background.",
+        date: "2026-08-26 10:15",
+        read: true
+      }
+    ])
+  );
 
-  const [adminCredentials, setAdminCredentials] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`${STORAGE_KEY}_admin_credentials`);
-      return saved ? JSON.parse(saved) : DEFAULT_ADMIN_CREDENTIALS;
-    } catch {
-      return DEFAULT_ADMIN_CREDENTIALS;
-    }
-  });
+  const [adminCredentials, setAdminCredentials] = useState(() =>
+    safeGetItem(`${STORAGE_KEY}_admin_credentials`, DEFAULT_ADMIN_CREDENTIALS)
+  );
 
-  // Save changes to localStorage
+  // Cross-tab real-time sync listener
   useEffect(() => {
-    try {
-      localStorage.setItem(`${STORAGE_KEY}_personal`, JSON.stringify(personalInfo));
-      localStorage.setItem(`${STORAGE_KEY}_section_headers`, JSON.stringify(sectionHeaders));
-      localStorage.setItem(`${STORAGE_KEY}_about_highlights`, JSON.stringify(aboutHighlights));
-      localStorage.setItem(`${STORAGE_KEY}_skills`, JSON.stringify(skills));
-      localStorage.setItem(`${STORAGE_KEY}_categories`, JSON.stringify(categories));
-      localStorage.setItem(`${STORAGE_KEY}_projects`, JSON.stringify(projects));
-      localStorage.setItem(`${STORAGE_KEY}_certs`, JSON.stringify(certifications));
-      localStorage.setItem(`${STORAGE_KEY}_education`, JSON.stringify(education));
-      localStorage.setItem(`${STORAGE_KEY}_admin_credentials`, JSON.stringify(adminCredentials));
-      localStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
-    } catch (e) {
-      console.error("Failed to persist portfolio data to localStorage", e);
-    }
-  }, [personalInfo, sectionHeaders, aboutHighlights, skills, categories, projects, certifications, education, messages, adminCredentials]);
+    const handleStorageEvent = (e) => {
+      if (!e.key || !e.newValue) return;
+      try {
+        if (e.key === `${STORAGE_KEY}_personal`) {
+          setPersonalInfo(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_KEY}_section_headers`) {
+          setSectionHeaders(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_KEY}_about_highlights`) {
+          setAboutHighlights(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_KEY}_skills`) {
+          setSkills(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_KEY}_categories`) {
+          setCategories(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_KEY}_projects`) {
+          setProjects(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_KEY}_certs`) {
+          setCertifications(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_KEY}_education`) {
+          setEducation(JSON.parse(e.newValue));
+        } else if (e.key === `${STORAGE_KEY}_admin_credentials`) {
+          setAdminCredentials(JSON.parse(e.newValue));
+        } else if (e.key === MESSAGES_KEY) {
+          setMessages(JSON.parse(e.newValue));
+        }
+      } catch (err) {
+        console.warn("[PortfolioContext] Error during cross-tab sync:", err);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageEvent);
+    return () => window.removeEventListener("storage", handleStorageEvent);
+  }, []);
+
+  // Save changes to localStorage with isolated safe setters
+  useEffect(() => {
+    safeSetItem(`${STORAGE_KEY}_personal`, personalInfo);
+  }, [personalInfo]);
+
+  useEffect(() => {
+    safeSetItem(`${STORAGE_KEY}_section_headers`, sectionHeaders);
+  }, [sectionHeaders]);
+
+  useEffect(() => {
+    safeSetItem(`${STORAGE_KEY}_about_highlights`, aboutHighlights);
+  }, [aboutHighlights]);
+
+  useEffect(() => {
+    safeSetItem(`${STORAGE_KEY}_skills`, skills);
+  }, [skills]);
+
+  useEffect(() => {
+    safeSetItem(`${STORAGE_KEY}_categories`, categories);
+  }, [categories]);
+
+  useEffect(() => {
+    safeSetItem(`${STORAGE_KEY}_projects`, projects);
+  }, [projects]);
+
+  useEffect(() => {
+    safeSetItem(`${STORAGE_KEY}_certs`, certifications);
+  }, [certifications]);
+
+  useEffect(() => {
+    safeSetItem(`${STORAGE_KEY}_education`, education);
+  }, [education]);
+
+  useEffect(() => {
+    safeSetItem(`${STORAGE_KEY}_admin_credentials`, adminCredentials);
+  }, [adminCredentials]);
+
+  useEffect(() => {
+    safeSetItem(MESSAGES_KEY, messages);
+  }, [messages]);
 
   // Actions
   const updatePersonalInfo = (newInfo) => {
-    setPersonalInfo((prev) => ({ ...prev, ...newInfo }));
+    setPersonalInfo((prev) => {
+      const updated = { ...prev, ...newInfo };
+      safeSetItem(`${STORAGE_KEY}_personal`, updated);
+      return updated;
+    });
   };
 
   const updateSectionHeader = (sectionKey, newHeaderData) => {
-    setSectionHeaders((prev) => ({
-      ...prev,
-      [sectionKey]: {
-        ...(prev[sectionKey] || {}),
-        ...newHeaderData
-      }
-    }));
+    setSectionHeaders((prev) => {
+      const updated = {
+        ...prev,
+        [sectionKey]: {
+          ...(prev[sectionKey] || {}),
+          ...newHeaderData
+        }
+      };
+      safeSetItem(`${STORAGE_KEY}_section_headers`, updated);
+      return updated;
+    });
   };
 
   const updateAdminCredentials = (newCredentials) => {
-    setAdminCredentials((prev) => ({ ...prev, ...newCredentials }));
+    setAdminCredentials((prev) => {
+      const updated = { ...prev, ...newCredentials };
+      safeSetItem(`${STORAGE_KEY}_admin_credentials`, updated);
+      return updated;
+    });
   };
 
   const resetAdminCredentials = () => {
     setAdminCredentials(DEFAULT_ADMIN_CREDENTIALS);
-    localStorage.setItem(`${STORAGE_KEY}_admin_credentials`, JSON.stringify(DEFAULT_ADMIN_CREDENTIALS));
+    safeSetItem(`${STORAGE_KEY}_admin_credentials`, DEFAULT_ADMIN_CREDENTIALS);
   };
 
   // About Highlights Actions
   const addAboutHighlight = (item) => {
-    setAboutHighlights((prev) => [...prev, item]);
+    setAboutHighlights((prev) => {
+      const updated = [...prev, item];
+      safeSetItem(`${STORAGE_KEY}_about_highlights`, updated);
+      return updated;
+    });
   };
 
   const updateAboutHighlight = (index, updatedItem) => {
     setAboutHighlights((prev) => {
       const next = [...prev];
       next[index] = updatedItem;
+      safeSetItem(`${STORAGE_KEY}_about_highlights`, next);
       return next;
     });
   };
 
   const deleteAboutHighlight = (index) => {
-    setAboutHighlights((prev) => prev.filter((_, i) => i !== index));
+    setAboutHighlights((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      safeSetItem(`${STORAGE_KEY}_about_highlights`, updated);
+      return updated;
+    });
   };
 
   // Categories Actions
   const addCategory = (category) => {
-    setCategories((prev) => [...prev, category]);
+    setCategories((prev) => {
+      const updated = [...prev, category];
+      safeSetItem(`${STORAGE_KEY}_categories`, updated);
+      return updated;
+    });
   };
 
   const updateCategory = (id, updatedCat) => {
-    setCategories((prev) => prev.map((c) => (c.id === id ? { ...c, ...updatedCat } : c)));
+    setCategories((prev) => {
+      const updated = prev.map((c) => (c.id === id ? { ...c, ...updatedCat } : c));
+      safeSetItem(`${STORAGE_KEY}_categories`, updated);
+      return updated;
+    });
   };
 
   const deleteCategory = (id) => {
-    if (id === 'all') return; // Cannot delete default 'all' category
-    setCategories((prev) => prev.filter((c) => c.id !== id));
+    if (id === "all") return;
+    setCategories((prev) => {
+      const updated = prev.filter((c) => c.id !== id);
+      safeSetItem(`${STORAGE_KEY}_categories`, updated);
+      return updated;
+    });
   };
 
   // Skills Actions
   const addSkill = (newSkill) => {
-    setSkills((prev) => [newSkill, ...prev]);
+    setSkills((prev) => {
+      const updated = [newSkill, ...prev];
+      safeSetItem(`${STORAGE_KEY}_skills`, updated);
+      return updated;
+    });
   };
 
   const updateSkill = (index, updatedSkill) => {
     setSkills((prev) => {
       const next = [...prev];
       next[index] = updatedSkill;
+      safeSetItem(`${STORAGE_KEY}_skills`, next);
       return next;
     });
   };
 
   const deleteSkill = (index) => {
-    setSkills((prev) => prev.filter((_, i) => i !== index));
+    setSkills((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      safeSetItem(`${STORAGE_KEY}_skills`, updated);
+      return updated;
+    });
   };
 
   // Projects Actions
   const addProject = (newProj) => {
-    setProjects((prev) => [{ ...newProj, id: Date.now() }, ...prev]);
+    setProjects((prev) => {
+      const updated = [{ ...newProj, id: Date.now() }, ...prev];
+      safeSetItem(`${STORAGE_KEY}_projects`, updated);
+      return updated;
+    });
   };
 
   const updateProject = (id, updatedProj) => {
-    setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updatedProj } : p)));
+    setProjects((prev) => {
+      const updated = prev.map((p) => (p.id === id ? { ...p, ...updatedProj } : p));
+      safeSetItem(`${STORAGE_KEY}_projects`, updated);
+      return updated;
+    });
   };
 
   const deleteProject = (id) => {
-    setProjects((prev) => prev.filter((p) => p.id !== id));
+    setProjects((prev) => {
+      const updated = prev.filter((p) => p.id !== id);
+      safeSetItem(`${STORAGE_KEY}_projects`, updated);
+      return updated;
+    });
   };
 
   // Certifications Actions
   const addCertification = (newCert) => {
-    setCertifications((prev) => [{ ...newCert, id: `cert-${Date.now()}` }, ...prev]);
+    setCertifications((prev) => {
+      const updated = [{ ...newCert, id: `cert-${Date.now()}` }, ...prev];
+      safeSetItem(`${STORAGE_KEY}_certs`, updated);
+      return updated;
+    });
   };
 
   const updateCertification = (id, updatedCert) => {
-    setCertifications((prev) => prev.map((c) => (c.id === id ? { ...c, ...updatedCert } : c)));
+    setCertifications((prev) => {
+      const updated = prev.map((c) => (c.id === id ? { ...c, ...updatedCert } : c));
+      safeSetItem(`${STORAGE_KEY}_certs`, updated);
+      return updated;
+    });
   };
 
   const deleteCertification = (id) => {
-    setCertifications((prev) => prev.filter((c) => c.id !== id));
+    setCertifications((prev) => {
+      const updated = prev.filter((c) => c.id !== id);
+      safeSetItem(`${STORAGE_KEY}_certs`, updated);
+      return updated;
+    });
   };
 
   // Education Actions
   const addEducation = (newEdu) => {
-    setEducation((prev) => [newEdu, ...prev]);
+    setEducation((prev) => {
+      const updated = [newEdu, ...prev];
+      safeSetItem(`${STORAGE_KEY}_education`, updated);
+      return updated;
+    });
   };
 
   const updateEducation = (index, updatedEdu) => {
     setEducation((prev) => {
       const next = [...prev];
       next[index] = updatedEdu;
+      safeSetItem(`${STORAGE_KEY}_education`, next);
       return next;
     });
   };
 
   const deleteEducation = (index) => {
-    setEducation((prev) => prev.filter((_, i) => i !== index));
+    setEducation((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      safeSetItem(`${STORAGE_KEY}_education`, updated);
+      return updated;
+    });
   };
 
   // Messages Actions
@@ -269,15 +380,42 @@ export function PortfolioProvider({ children }) {
       date: new Date().toLocaleString(),
       read: false
     };
-    setMessages((prev) => [newMsg, ...prev]);
+    setMessages((prev) => {
+      const updated = [newMsg, ...prev];
+      safeSetItem(MESSAGES_KEY, updated);
+      return updated;
+    });
   };
 
   const deleteMessage = (id) => {
-    setMessages((prev) => prev.filter((m) => m.id !== id));
+    setMessages((prev) => {
+      const updated = prev.filter((m) => m.id !== id);
+      safeSetItem(MESSAGES_KEY, updated);
+      return updated;
+    });
   };
 
   const markMessageAsRead = (id) => {
-    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read: true } : m)));
+    setMessages((prev) => {
+      const updated = prev.map((m) => (m.id === id ? { ...m, read: true } : m));
+      safeSetItem(MESSAGES_KEY, updated);
+      return updated;
+    });
+  };
+
+  // Explicit Save All Changes function
+  const saveAllChanges = () => {
+    safeSetItem(`${STORAGE_KEY}_personal`, personalInfo);
+    safeSetItem(`${STORAGE_KEY}_section_headers`, sectionHeaders);
+    safeSetItem(`${STORAGE_KEY}_about_highlights`, aboutHighlights);
+    safeSetItem(`${STORAGE_KEY}_skills`, skills);
+    safeSetItem(`${STORAGE_KEY}_categories`, categories);
+    safeSetItem(`${STORAGE_KEY}_projects`, projects);
+    safeSetItem(`${STORAGE_KEY}_certs`, certifications);
+    safeSetItem(`${STORAGE_KEY}_education`, education);
+    safeSetItem(`${STORAGE_KEY}_admin_credentials`, adminCredentials);
+    safeSetItem(MESSAGES_KEY, messages);
+    return true;
   };
 
   // Reset all
@@ -291,15 +429,19 @@ export function PortfolioProvider({ children }) {
     setCertifications(defaultCertificationsData);
     setEducation(defaultEducationData);
     setAdminCredentials(DEFAULT_ADMIN_CREDENTIALS);
-    localStorage.removeItem(`${STORAGE_KEY}_personal`);
-    localStorage.removeItem(`${STORAGE_KEY}_section_headers`);
-    localStorage.removeItem(`${STORAGE_KEY}_about_highlights`);
-    localStorage.removeItem(`${STORAGE_KEY}_skills`);
-    localStorage.removeItem(`${STORAGE_KEY}_categories`);
-    localStorage.removeItem(`${STORAGE_KEY}_projects`);
-    localStorage.removeItem(`${STORAGE_KEY}_certs`);
-    localStorage.removeItem(`${STORAGE_KEY}_education`);
-    localStorage.removeItem(`${STORAGE_KEY}_admin_credentials`);
+    try {
+      localStorage.removeItem(`${STORAGE_KEY}_personal`);
+      localStorage.removeItem(`${STORAGE_KEY}_section_headers`);
+      localStorage.removeItem(`${STORAGE_KEY}_about_highlights`);
+      localStorage.removeItem(`${STORAGE_KEY}_skills`);
+      localStorage.removeItem(`${STORAGE_KEY}_categories`);
+      localStorage.removeItem(`${STORAGE_KEY}_projects`);
+      localStorage.removeItem(`${STORAGE_KEY}_certs`);
+      localStorage.removeItem(`${STORAGE_KEY}_education`);
+      localStorage.removeItem(`${STORAGE_KEY}_admin_credentials`);
+    } catch (e) {
+      console.warn("Storage reset warning:", e);
+    }
   };
 
   // Export JSON Backup
@@ -328,14 +470,38 @@ export function PortfolioProvider({ children }) {
   const importBackupJSON = (jsonString) => {
     try {
       const data = JSON.parse(jsonString);
-      if (data.personalInfo) setPersonalInfo(data.personalInfo);
-      if (data.sectionHeaders) setSectionHeaders(data.sectionHeaders);
-      if (data.aboutHighlights) setAboutHighlights(data.aboutHighlights);
-      if (data.skills) setSkills(data.skills);
-      if (data.categories) setCategories(data.categories);
-      if (data.projects) setProjects(data.projects);
-      if (data.certifications) setCertifications(data.certifications);
-      if (data.education) setEducation(data.education);
+      if (data.personalInfo) {
+        setPersonalInfo(data.personalInfo);
+        safeSetItem(`${STORAGE_KEY}_personal`, data.personalInfo);
+      }
+      if (data.sectionHeaders) {
+        setSectionHeaders(data.sectionHeaders);
+        safeSetItem(`${STORAGE_KEY}_section_headers`, data.sectionHeaders);
+      }
+      if (data.aboutHighlights) {
+        setAboutHighlights(data.aboutHighlights);
+        safeSetItem(`${STORAGE_KEY}_about_highlights`, data.aboutHighlights);
+      }
+      if (data.skills) {
+        setSkills(data.skills);
+        safeSetItem(`${STORAGE_KEY}_skills`, data.skills);
+      }
+      if (data.categories) {
+        setCategories(data.categories);
+        safeSetItem(`${STORAGE_KEY}_categories`, data.categories);
+      }
+      if (data.projects) {
+        setProjects(data.projects);
+        safeSetItem(`${STORAGE_KEY}_projects`, data.projects);
+      }
+      if (data.certifications) {
+        setCertifications(data.certifications);
+        safeSetItem(`${STORAGE_KEY}_certs`, data.certifications);
+      }
+      if (data.education) {
+        setEducation(data.education);
+        safeSetItem(`${STORAGE_KEY}_education`, data.education);
+      }
       return { success: true };
     } catch (err) {
       console.error("Failed to import JSON", err);
