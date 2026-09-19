@@ -1111,6 +1111,17 @@ export default function App() {
               >
                 <ArrowUp size={16} /> Top
               </a>
+              <button
+                onClick={() => {
+                  window.history.pushState({}, '', '/admin');
+                  setIsAdminOpen(true);
+                }}
+                className="chip-btn"
+                title="Open Admin CMS Portal"
+                style={{ color: '#818cf8', borderColor: 'rgba(99, 102, 241, 0.35)', cursor: 'pointer' }}
+              >
+                <Lock size={15} /> Admin
+              </button>
             </div>
           </div>
 
