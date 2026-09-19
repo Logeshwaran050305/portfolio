@@ -367,9 +367,9 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
       {/* Admin Top Header */}
       <header className="admin-header">
         <div className="admin-header-brand">
-          <div className="admin-badge-pill">CMS CONTROL PANEL</div>
+          <div className="admin-badge-pill">CMS v2.0</div>
           <h1 className="admin-title">
-            Universal Site Manager <span className="text-gradient">v2.0</span>
+            Site Manager
           </h1>
         </div>
 
@@ -379,13 +379,13 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
               exportBackupJSON();
               showToast("Backup JSON exported!");
             }}
-            className="chip-btn"
+            className="chip-btn admin-desktop-only"
             title="Export Full Site Backup"
           >
-            <Download size={14} /> Export Backup JSON
+            <Download size={14} /> Export Backup
           </button>
 
-          <label className="chip-btn" style={{ cursor: "pointer" }} title="Restore Backup JSON">
+          <label className="chip-btn admin-desktop-only" style={{ cursor: "pointer" }} title="Restore Backup JSON">
             <Upload size={14} /> Import Backup
             <input type="file" accept=".json" onChange={handleImportJSONFile} style={{ display: "none" }} />
           </label>
@@ -397,15 +397,19 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
                 showToast("Portfolio reset to original defaults");
               }
             }}
-            className="chip-btn"
+            className="chip-btn admin-desktop-only"
             style={{ color: "#f43f5e", borderColor: "rgba(244, 63, 94, 0.3)" }}
             title="Reset All Changes"
           >
             <RotateCcw size={14} /> Reset
           </button>
 
-          <button onClick={onExitAdmin} className="btn-glow" style={{ padding: "0.45rem 1.1rem", fontSize: "0.85rem" }}>
-            <Eye size={15} /> View Live Portfolio
+          <button onClick={onExitAdmin} className="btn-glow" style={{ padding: "0.45rem 0.95rem", fontSize: "0.82rem" }}>
+            <Eye size={14} /> <span>Live Site</span>
+          </button>
+
+          <button onClick={onLogout} className="chip-btn" style={{ padding: "0.45rem 0.75rem", fontSize: "0.82rem" }} title="Sign Out">
+            <LockKeyhole size={13} /> <span className="admin-btn-text">Logout</span>
           </button>
         </div>
       </header>
@@ -419,7 +423,7 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
               onClick={() => setActiveTab("dashboard")}
               className={`admin-nav-item ${activeTab === "dashboard" ? "active" : ""}`}
             >
-              <LayoutDashboard size={18} />
+              <LayoutDashboard size={16} />
               <span>Overview</span>
             </button>
 
@@ -427,7 +431,7 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
               onClick={() => setActiveTab("profile")}
               className={`admin-nav-item ${activeTab === "profile" ? "active" : ""}`}
             >
-              <User size={18} />
+              <User size={16} />
               <span>Profile & Hero</span>
             </button>
 
@@ -435,23 +439,23 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
               onClick={() => setActiveTab("about")}
               className={`admin-nav-item ${activeTab === "about" ? "active" : ""}`}
             >
-              <HeartHandshake size={18} />
-              <span>About & Highlights ({aboutHighlights?.length || 0})</span>
+              <HeartHandshake size={16} />
+              <span>About ({aboutHighlights?.length || 0})</span>
             </button>
 
             <button
               onClick={() => setActiveTab("skills")}
               className={`admin-nav-item ${activeTab === "skills" ? "active" : ""}`}
             >
-              <Zap size={18} />
-              <span>Skills Matrix ({skills.length})</span>
+              <Zap size={16} />
+              <span>Skills ({skills.length})</span>
             </button>
 
             <button
               onClick={() => setActiveTab("projects")}
               className={`admin-nav-item ${activeTab === "projects" ? "active" : ""}`}
             >
-              <FolderGit2 size={18} />
+              <FolderGit2 size={16} />
               <span>Projects ({projects.length})</span>
             </button>
 
@@ -459,23 +463,23 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
               onClick={() => setActiveTab("certifications")}
               className={`admin-nav-item ${activeTab === "certifications" ? "active" : ""}`}
             >
-              <Award size={18} />
-              <span>Certifications ({certifications.length})</span>
+              <Award size={16} />
+              <span>Certs ({certifications.length})</span>
             </button>
 
             <button
               onClick={() => setActiveTab("education")}
               className={`admin-nav-item ${activeTab === "education" ? "active" : ""}`}
             >
-              <GraduationCap size={18} />
-              <span>Education & Milestones</span>
+              <GraduationCap size={16} />
+              <span>Education</span>
             </button>
 
             <button
               onClick={() => setActiveTab("resume")}
               className={`admin-nav-item ${activeTab === "resume" ? "active" : ""}`}
             >
-              <FileText size={18} />
+              <FileText size={16} />
               <span>Resume & CV</span>
             </button>
 
@@ -483,28 +487,28 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
               onClick={() => setActiveTab("sections")}
               className={`admin-nav-item ${activeTab === "sections" ? "active" : ""}`}
             >
-              <Tag size={18} />
-              <span>Section Titles & Tags</span>
+              <Tag size={16} />
+              <span>Section Titles</span>
             </button>
 
             <button
               onClick={() => setActiveTab("inbox")}
               className={`admin-nav-item ${activeTab === "inbox" ? "active" : ""}`}
             >
-              <Mail size={18} />
-              <span>Contact Inbox ({messages.length})</span>
+              <Mail size={16} />
+              <span>Inbox ({messages.length})</span>
             </button>
 
             <button
               onClick={() => setActiveTab("settings")}
               className={`admin-nav-item ${activeTab === "settings" ? "active" : ""}`}
             >
-              <Sliders size={18} />
+              <Sliders size={16} />
               <span>Security & Data</span>
             </button>
           </div>
 
-          <div className="admin-sidebar-footer">
+          <div className="admin-sidebar-footer admin-desktop-only">
             <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
               Status: <span style={{ color: "#34d399", fontWeight: 700 }}>Active Universal CMS</span>
             </div>
