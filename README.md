@@ -4,9 +4,11 @@
 The admin panel publishes shared portfolio content through `api/content.js`. Local storage is only a browser cache; it cannot update the public site by itself.
 
 1. In Vercel, create or connect an Upstash Redis/KV store to this project.
-2. Confirm these production environment variables are available:
+2. Confirm one of these production environment variable pairs is available:
 	- `KV_REST_API_URL`
 	- `KV_REST_API_TOKEN`
+	- `UPSTASH_REDIS_REST_URL`
+	- `UPSTASH_REDIS_REST_TOKEN`
 3. Redeploy after adding the variables.
 
 After deployment, sign in to `/admin`, edit content, and use the save button. The public site loads the shared content from `/api/content` on each new browser session. Existing visitors may need a refresh.

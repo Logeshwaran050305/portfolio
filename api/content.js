@@ -1,8 +1,8 @@
 const CONTENT_KEY = "portfolio:content";
 
 function kvRequestUrl() {
-  const baseUrl = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
+  const baseUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!baseUrl || !token) return null;
   return { baseUrl, token };
 }
@@ -31,7 +31,7 @@ export default async function handler(request, response) {
   const config = kvRequestUrl();
   if (!config) {
     return response.status(503).json({
-      error: "Shared content storage is not configured. Add KV_REST_API_URL and KV_REST_API_TOKEN in Vercel."
+      error: "Shared content storage is not configured. Add KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN in Vercel."
     });
   }
 
