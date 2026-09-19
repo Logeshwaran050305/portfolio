@@ -59,124 +59,54 @@ export function ResumeModal({
 
   return (
     <div
-      className="modal-backdrop"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-        background: 'rgba(3, 7, 18, 0.85)',
-        backdropFilter: 'blur(10px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-        animation: 'fadeIn 0.2s ease-out'
-      }}
+      className="modal-backdrop resume-modal-backdrop"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="glass-card"
-        style={{
-          width: '100%',
-          maxWidth: '850px',
-          maxHeight: '92vh',
-          display: 'flex',
-          flexDirection: 'column',
-          background: 'rgba(15, 23, 42, 0.95)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.15)',
-          borderRadius: '1.25rem',
-          overflow: 'hidden'
-        }}
+        className="glass-card resume-modal-card"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Top Bar */}
-        <div
-          style={{
-            padding: '1.25rem 1.75rem',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            background: 'linear-gradient(90deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.2))',
-                border: '1px solid rgba(56, 189, 248, 0.4)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#38bdf8'
-              }}
-            >
+        <div className="resume-modal-topbar">
+          <div className="resume-modal-title-group">
+            <div className="resume-modal-icon-badge">
               <FileText size={20} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+              <h3 className="resume-modal-heading">
                 {name} — Resume
               </h3>
-              <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '2px 0 0 0' }}>
+              <p className="resume-modal-subheading">
                 Dedicated Clean Resume Document • Ready for Save as PDF
               </p>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <div className="resume-modal-header-actions">
             {hasCustomFile && (
               <button
                 onClick={handleDirectDownload}
-                className="btn-secondary"
-                style={{
-                  padding: '0.45rem 0.95rem',
-                  fontSize: '0.84rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  borderColor: 'rgba(56, 189, 248, 0.4)'
-                }}
+                className="btn-secondary resume-modal-action-btn"
               >
-                <Download size={15} /> Download Attached File
+                <Download size={15} /> <span>Download File</span>
               </button>
             )}
 
             <button
               onClick={handlePrint}
-              className="btn-glow"
-              style={{
-                padding: '0.45rem 1.15rem',
-                fontSize: '0.84rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.45rem'
-              }}
+              className="btn-glow resume-modal-action-btn"
             >
-              <Printer size={15} /> Save / Print PDF
+              <Printer size={15} /> <span>Save / Print PDF</span>
             </button>
 
             <button
               onClick={onClose}
               className="close-btn"
-              style={{
-                background: 'rgba(255, 255, 255, 0.06)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '8px',
-                color: '#cbd5e1',
-                padding: '0.45rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
               title="Close modal"
+              aria-label="Close modal"
             >
               <X size={18} />
             </button>
@@ -184,64 +114,25 @@ export function ResumeModal({
         </div>
 
         {/* Info Banner */}
-        <div
-          style={{
-            padding: '0.65rem 1.75rem',
-            background: 'rgba(56, 189, 248, 0.08)',
-            borderBottom: '1px solid rgba(56, 189, 248, 0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            fontSize: '0.82rem',
-            color: '#38bdf8'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <CheckCircle2 size={15} />
+        <div className="resume-modal-banner">
+          <div className="resume-modal-banner-info">
+            <CheckCircle2 size={15} style={{ flexShrink: 0 }} />
             <span>
               <strong>Clean Resume View:</strong> Downloads/Prints <strong>only</strong> this exact resume document without any website copy or UI elements.
             </span>
           </div>
           <button
             onClick={handlePrint}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#38bdf8',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              fontWeight: 600,
-              fontSize: '0.82rem'
-            }}
+            className="resume-modal-banner-link"
           >
             Click to Save as PDF
           </button>
         </div>
 
         {/* Document Preview Scroll Area */}
-        <div
-          style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: '1.5rem',
-            background: '#090d16'
-          }}
-        >
+        <div className="resume-modal-scroll-area">
           {/* Printable White Paper Document */}
-          <div
-            style={{
-              maxWidth: '750px',
-              margin: '0 auto',
-              background: '#ffffff',
-              color: '#000000',
-              borderRadius: '4px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
-              padding: '2.5rem 2.75rem',
-              fontFamily: "'Times New Roman', Times, Georgia, serif",
-              lineHeight: 1.5,
-              fontSize: '11pt'
-            }}
-          >
+          <div className="resume-document-sheet">
             {/* CONTACT */}
             <div
               style={{
@@ -255,6 +146,7 @@ export function ResumeModal({
             </div>
 
             <div
+              className="resume-sheet-contact-row"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -412,32 +304,21 @@ export function ResumeModal({
         </div>
 
         {/* Modal Footer */}
-        <div
-          style={{
-            padding: '1rem 1.75rem',
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            background: 'rgba(15, 23, 42, 0.95)'
-          }}
-        >
-          <span style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+        <div className="resume-modal-footer">
+          <span className="resume-modal-footer-tip">
             Tip: In the print dialog destination, choose <strong>"Save as PDF"</strong> to save your resume file.
           </span>
 
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div className="resume-modal-footer-actions">
             <button
               onClick={onClose}
               className="btn-secondary"
-              style={{ padding: '0.45rem 1rem', fontSize: '0.84rem' }}
             >
               Close
             </button>
             <button
               onClick={handlePrint}
               className="btn-glow"
-              style={{ padding: '0.45rem 1.25rem', fontSize: '0.84rem' }}
             >
               <Download size={15} /> Save / Print PDF
             </button>
