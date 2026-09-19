@@ -82,7 +82,8 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
     exportBackupJSON,
     importBackupJSON,
     adminCredentials,
-    updateAdminCredentials
+    updateAdminCredentials,
+    saveAllChanges
   } = usePortfolio();
 
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -861,10 +862,12 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
                 <div style={{ marginTop: "1.75rem", display: "flex", justifyContent: "flex-end" }}>
                   <button
                     onClick={() => {
+                      saveAllChanges();
                       handleConfetti();
-                      showToast("Profile & Brand settings saved successfully!");
+                      showToast("✓ Profile & Hero settings saved to live website!");
                     }}
                     className="btn-glow"
+                    style={{ width: "100%", maxWidth: "260px", justifyContent: "center" }}
                   >
                     <Save size={16} /> Save Profile Changes
                   </button>
@@ -1709,6 +1712,20 @@ export function AdminDashboard({ onExitAdmin, onLogout }) {
                     </div>
                   </div>
                 ))}
+
+                <div style={{ marginTop: "1rem", display: "flex", justifyContent: "flex-end" }}>
+                  <button
+                    onClick={() => {
+                      saveAllChanges();
+                      handleConfetti();
+                      showToast("✓ All Section Headings saved to live website!");
+                    }}
+                    className="btn-glow"
+                    style={{ width: "100%", maxWidth: "260px", justifyContent: "center" }}
+                  >
+                    <Save size={16} /> Save Section Titles
+                  </button>
+                </div>
               </div>
             </div>
           )}

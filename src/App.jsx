@@ -1055,7 +1055,7 @@ export default function App() {
                   <label className="form-label">Your Message *</label>
                   <textarea
                     required
-                    placeholder="Hi Logeshwaran, I'd like to discuss an opportunity..."
+                    placeholder={`Hi ${personalInfo.name || 'Logeshwaran'}, I'd like to discuss an opportunity...`}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     className="form-textarea"
@@ -1090,9 +1090,17 @@ export default function App() {
           <div className="footer-content">
             <div className="nav-logo">
               <span className="logo-badge">
-                {personalInfo.logoImage ? <img src={personalInfo.logoImage} alt="" /> : 'LG'}
+                {personalInfo.logoImage ? (
+                  <img
+                    src={formatImageUrl(personalInfo.logoImage)}
+                    alt="Logo"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                ) : (
+                  'LG'
+                )}
               </span>
-              <span>Logeshwaran G</span>
+              <span>{personalInfo.brandName || personalInfo.name || 'Logeshwaran G'}</span>
             </div>
 
             <div className="footer-actions" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
@@ -1113,7 +1121,7 @@ export default function App() {
                 <Phone size={16} />
               </a>
               <a
-                href={`https://wa.me/${personalInfo.phone.replace(/^tel:/i, '').replace(/\D/g, '')}?text=${encodeURIComponent('Hello Logeshwaran, I would like to discuss an opportunity.')}`}
+                href={`https://wa.me/${personalInfo.phone.replace(/^tel:/i, '').replace(/\D/g, '')}?text=${encodeURIComponent(`Hello ${personalInfo.name || 'Logeshwaran'}, I would like to discuss an opportunity.`)}`}
                 className="chip-btn"
                 title="Chat on WhatsApp"
                 target="_blank"

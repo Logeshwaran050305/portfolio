@@ -18,7 +18,11 @@ const DEFAULT_ADMIN_CREDENTIALS = { username: "admin", password: "admin123" };
 // Safe item serializer that protects against localStorage quota exhaustion
 function safeSetItem(key, value) {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    const serialized = JSON.stringify(value);
+    localStorage.setItem(key, serialized);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("portfolio_cms_update", { detail: { key, value } }));
+    }
     return true;
   } catch (err) {
     console.warn(`[PortfolioContext] Failed to persist key "${key}" to localStorage:`, err);
@@ -35,7 +39,22 @@ function safeGetItem(key, fallback) {
       return Array.isArray(parsed) ? parsed : fallback;
     }
     if (typeof fallback === "object" && fallback !== null) {
-      return { ...fallback, ...parsed };
+      const merged = { ...fallback };
+      for (const k of Object.keys(parsed)) {
+        if (
+          typeof parsed[k] === "object" &&
+          parsed[k] !== null &&
+          !Array.isArray(parsed[k]) &&
+          typeof fallback[k] === "object" &&
+          fallback[k] !== null &&
+          !Array.isArray(fallback[k])
+        ) {
+          merged[k] = { ...fallback[k], ...parsed[k] };
+        } else {
+          merged[k] = parsed[k];
+        }
+      }
+      return merged;
     }
     return parsed ?? fallback;
   } catch {
@@ -549,7 +568,8 @@ export function PortfolioProvider({ children }) {
         importBackupJSON,
         adminCredentials,
         updateAdminCredentials,
-        resetAdminCredentials
+        resetAdminCredentials,
+        saveAllChanges
       }}
     >
       {children}
