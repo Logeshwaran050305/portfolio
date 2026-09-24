@@ -1,17 +1,14 @@
 
-## Deploying the CMS
+## Deploying to Render
 
-The admin panel publishes shared portfolio content through `api/content.js`. Local storage is only a browser cache; it cannot update the public site by itself.
+The included `render.yaml` configures a Render web service that serves the Vite build, the `/admin` route, and the `/api/content` endpoint from one deployment.
 
-1. In Vercel, create or connect an Upstash Redis/KV store to this project.
-2. Confirm one of these production environment variable pairs is available:
-	- `KV_REST_API_URL`
-	- `KV_REST_API_TOKEN`
-	- `UPSTASH_REDIS_REST_URL`
-	- `UPSTASH_REDIS_REST_TOKEN`
-3. Redeploy after adding the variables.
+1. Push this repository to GitHub.
+2. In Render, choose **New > Blueprint** and select the GitHub repository.
+3. Add `KV_REST_API_URL` and `KV_REST_API_TOKEN` from an Upstash Redis database as secret environment variables.
+4. Deploy the service.
 
-After deployment, sign in to `/admin`, edit content, and use the save button. The public site loads the shared content from `/api/content` on each new browser session. Existing visitors may need a refresh.
+The public portfolio is available at the service URL. The admin panel is available at the same URL followed by `/admin`. Local storage is only a browser cache; shared content is published through Upstash Redis.
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
