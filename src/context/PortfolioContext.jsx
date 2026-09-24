@@ -483,7 +483,7 @@ export function PortfolioProvider({ children }) {
     });
 
     if (!response.ok) {
-      throw new Error("Shared content storage is unavailable. Configure Vercel KV before publishing.");
+      throw new Error("Unable to publish changes. Check the Render service logs and try again.");
     }
     return true;
   };

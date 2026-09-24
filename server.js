@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import { createReadStream } from "node:fs";
-import { access, stat } from "node:fs/promises";
+import { access, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { extname, join, normalize, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -8,6 +8,7 @@ const rootDirectory = fileURLToPath(new URL(".", import.meta.url));
 const publicDirectory = join(rootDirectory, "dist");
 const port = Number(process.env.PORT || 10000);
 const contentKey = "portfolio:content";
+const localContentPath = join(rootDirectory, ".data", "content.json");
 
 function kvConfig() {
   const baseUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -43,11 +44,39 @@ async function readRequestBody(request) {
   return body;
 }
 
+async function readLocalContent() {
+  try {
+    return JSON.parse(await readFile(localContentPath, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+async function writeLocalContent(content) {
+  await mkdir(join(rootDirectory, ".data"), { recursive: true });
+  await writeFile(localContentPath, JSON.stringify(content), "utf8");
+}
+
 async function handleContentApi(request, response) {
   if (!kvConfig()) {
-    sendJson(response, 503, {
-      error: "Shared content storage is not configured. Add the Upstash environment variables in Render."
-    });
+    if (request.method === "GET") {
+      sendJson(response, 200, { content: await readLocalContent() });
+      return;
+    }
+
+    if (request.method === "PUT") {
+      const content = JSON.parse(await readRequestBody(request));
+      if (!content || typeof content !== "object" || Array.isArray(content)) {
+        sendJson(response, 400, { error: "A content object is required." });
+        return;
+      }
+      await writeLocalContent(content);
+      sendJson(response, 200, { ok: true, storage: "local" });
+      return;
+    }
+
+    response.setHeader("Allow", "GET, PUT");
+    sendJson(response, 405, { error: "Method not allowed." });
     return;
   }
 
